@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Page</title>
+    <link rel="stylesheet" href="~/css/styles.css">
+
+</head>
+<body>
+    <div class="content">
+        @if (ViewBag.NotificationMessage != null)
+        {
+            <div class="alert @(ViewBag.NotificationType == "success" ? "alert-success" : "alert-danger")">
+                @ViewBag.NotificationMessage
+            </div>
+        }
+        <div class="signup-form">
+    <div class="container">
+        <h2>Register</h2>
+        <div class="error-message" id="error-message">All fields are required!</div>
+        <form asp-controller="Userlgsin" asp-action="SaveUser">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" name="Name" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                        <input type="email" name="Email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                        <input type="password" name="Password" placeholder="Enter your password" required>
+            </div>
+            <input type="submit" value="Register">
+        </form>
+                <p class="register-link">Don't have an account? <a href="/Userlgsin/login">Login here</a></p>
+    </div>
+</body>
+</html>
+<script>
+    setTimeout(function () {
+        var alert = document.querySelector('.alert');
+        if (alert) {
+            alert.style.display = 'none';
+        }
+    }, 5000);
+</script>
+<style>
+    body {
+        background-image: url('/images/login.jpg');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: #fff;
+    }
+
+    .container {
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        width: 400px;
+        max-width: 100%;
+        color: #333;
+    }
+
+    h2 {
+        color: #28a745;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    input {
+        margin-bottom: 1rem;
+    }
+
+    .error-message {
+        color: red;
+        display: none;
+    }
+
+    .register-link {
+        text-align: center;
+    }
+
+        .register-link a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+
+            .register-link a:hover {
+                text-decoration: underline;
+            }
+</style>

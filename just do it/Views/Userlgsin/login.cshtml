@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="~/css/styles.css">
+    <style>
+
+        body {
+            background-image: url('/images/login.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            max-width: 100%;
+            color: #333;
+        }
+
+        h2 {
+            color: #4A90E2;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #4A90E2;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #357ABD;
+            }
+
+        .register-link {
+            text-align: center;
+        }
+
+            .register-link a {
+                color: #4A90E2;
+                text-decoration: none;
+            }
+
+                .register-link a:hover {
+                    text-decoration: underline;
+                }
+    </style>
+</head>
+<body>
+   
+    <div class="content">
+        @if (ViewBag.NotificationMessage != null)
+        {
+            <div class="alert @(ViewBag.NotificationType == "success" ? "alert-success" : "alert-danger")">
+                @ViewBag.NotificationMessage
+            </div>
+        }
+        <div class="signup-form">
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <form asp-controller="Userlgsin" asp-action="logine">
+            <div class="input-group">
+                <label for="username">Email</label>
+                <input type="text" name="email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" name="pass" required>
+            </div>
+            <div class="input-group">
+                <button type="submit" class="btn">Login</button>
+            </div>
+        </form>
+        <p class="register-link">Don't have an account? <a href="/Userlgsin/Signup">Register here</a></p>
+    </div>
+</body>
+</html>
+<script>
+    setTimeout(function () {
+        var alert = document.querySelector('.alert');
+        if (alert) {
+            alert.style.display = 'none';
+        }
+    }, 5000);
+</script>

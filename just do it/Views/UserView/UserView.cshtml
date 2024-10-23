@@ -1,0 +1,429 @@
+﻿@model User
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <h1>Welcome, @Model.Name!</h1>
+            <nav class="user-nav">
+                <a href="@Url.Action("login", "Userlgsin")" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+             
+            </nav>
+        </header>
+
+        <div class="container">
+            <!-- Journaling Section -->
+            <section class="journaling-section">
+                <h2><i class="fas fa-book"></i> My Journal</h2>
+                <button class="add-btn" onclick="location.href='@Url.Action("AddJournaling", new { userId = Model.Id })'">
+                    <i class="fas fa-plus"></i> New Entry
+                </button>
+
+                <div class="journal-entries">
+                    @if (Model.Journalings != null && Model.Journalings.Any())
+                    {
+                        foreach (var entry in Model.Journalings.OrderByDescending(j => j.Date))
+                        {
+                            <div class="journal-card" onclick="location.href='@Url.Action("EditJournaling", new { id = entry.Id })'">
+                                <h3>@entry.Title</h3>
+                                <p class="date"><i class="far fa-calendar-alt"></i> @entry.Date.ToString("MMM dd, yyyy")</p>
+                                <p class="preview">@(entry.Content.Length > 100 ? entry.Content.Substring(0, 100) + "..." : entry.Content)</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="fas fa-book-open"></i>
+                            <p>No journal entries yet. Start writing!</p>
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <!-- Tasks Section -->
+            <section class="tasks-section">
+                <h2><i class="fas fa-tasks"></i> My Tasks</h2>
+                <button class="add-btn" onclick="addNewTaskList()">
+                    <i class="fas fa-plus"></i> New Task List
+                </button>
+
+                <div class="task-lists">
+                    @if (Model.TasksDayslists != null && Model.TasksDayslists.Any())
+                    {
+                        foreach (var taskList in Model.TasksDayslists.OrderByDescending(t => t.Date))
+                        {
+                            <div class="task-list-card">
+                                <div class="task-list-header">
+                                    <h3><i class="far fa-calendar"></i> @taskList.Date.ToString("MMM dd, yyyy")</h3>
+                                    <button class="add-task-btn" onclick="location.href='@Url.Action("AddTask", new { userId = Model.Id, date = taskList.Date })'">
+                                        <i class="fas fa-plus"></i> Add Task
+                                    </button>
+                                </div>
+
+                                <div class="tasks">
+                                    @if (taskList.Tasks != null && taskList.Tasks.Any())
+                                    {
+                                        foreach (var task in taskList.Tasks)
+                                        {
+                                            <div class="task-item" data-id="@task.Id">
+                                                <div class="task-checkbox">
+                                                    <input type="checkbox" id="task-@task.Id"
+                                                    @(task.IsCompleted ? "checked" : "")
+                                                           onchange="toggleTask(@task.Id)">
+                                                    <label for="task-@task.Id" class="task-name @(task.IsCompleted ? "completed" : "")">
+                                                        @task.Name
+                                                    </label>
+                                                </div>
+                                                @if (!string.IsNullOrEmpty(task.Description))
+                                                {
+                                                    <div class="task-description">@task.Description</div>
+                                                }
+                                                <button class="delete-btn" onclick="deleteTask(@task.Id)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="empty-state">
+                                            <p>No tasks added yet</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p>No task lists yet. Create one to get started!</p>
+                        </div>
+                    }
+                </div>
+            </section>
+        </div>
+    </div>
+
+
+
+</body>
+</html>
+<style>
+    :root {
+        --primary-color: #4a90e2;
+        --secondary-color: #357ABD;
+        --background-color: #f4f4f4;
+        --card-background: #ffffff;
+        --text-color: #333333;
+        --border-color: #dddddd;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+    }
+
+    body {
+        display: flex; /* Enable flexbox layout for the entire page */
+        justify-content: center; /* Center items horizontally */
+        align-items: center; /* Center items vertically */
+        min-height: 100vh; /* Ensure the body takes full height of the viewport */
+        margin: 0; /* Remove default margin */
+    }
+
+    html, body {
+        height: 100%; /* Ensures the body takes the full height */
+        margin: 0; /* Removes default margin */
+        padding: 0; /* Removes default padding */
+    }
+
+    .dashboard {
+        position: fixed;
+        top: 0;
+        left: 0; 
+        width: 100vw; 
+        height: 100vh; 
+        background-color: #f0f0f0; 
+        z-index: 999; /* Optional: Ensures it's on top of other elements */
+        overflow: auto; /* Enables scrolling for the content inside */
+    }
+
+
+    header {
+        background: var(--card-background);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center; /* Center the header content */
+        text-align: center;
+        flex-direction: column; /* Stack items vertically */
+    }
+
+        header h1 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+    .user-nav {
+        display: flex;
+        gap: 20px;
+        justify-content: center; /* Center navigation links */
+    }
+
+    .nav-link {
+        color: var(--text-color);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 16px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+        .nav-link:hover {
+            background-color: var(--background-color);
+        }
+
+    .container {
+        display: flex; /* Enable flexbox layout */
+        justify-content: space-between; /* Distribute space between items */
+        align-items: flex-start; /* Align items at the start of the container */
+        gap: 20px; /* Add space between the sections */
+        flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    }
+
+    section {
+        background: var(--card-background);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 100%; /* Allow sections to take full width */
+        max-width: 48%; /* Limit max width for side by side layout */
+    }
+
+
+    h2 {
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .add-btn, .add-task-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.3s;
+    }
+
+        .add-btn:hover, .add-task-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+    .journal-entries, .task-lists {
+        margin-top: 20px;
+        max-height: 600px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+        .journal-entries::-webkit-scrollbar, .task-lists::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .journal-entries::-webkit-scrollbar-track, .task-lists::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .journal-entries::-webkit-scrollbar-thumb, .task-lists::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+    .journal-card, .task-list-card {
+        background: var(--card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .journal-card {
+        cursor: pointer;
+    }
+
+        .journal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+    .date {
+        color: #666;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .preview {
+        color: #444;
+        margin-top: 10px;
+        line-height: 1.5;
+    }
+
+    .task-list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .task-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.3s;
+    }
+
+        .task-item:hover {
+            background-color: #f8f9fa;
+        }
+
+    .task-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-grow: 1;
+    }
+
+        .task-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+    .task-name {
+        flex-grow: 1;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+        .task-name.completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+    .task-description {
+        font-size: 0.9em;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    .delete-btn {
+        background: none;
+        border: none;
+        color: var(--danger-color);
+        cursor: pointer;
+        padding: 5px;
+        opacity: 0.7;
+        transition: opacity 0.3s;
+    }
+
+        .delete-btn:hover {
+            opacity: 1;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #666;
+    }
+
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: var(--border-color);
+        }
+
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: var(--background-color);
+    }
+
+    .dashboard {
+        width: 100%;
+        max-width: 1200px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        background-color: var(--card-background);
+    }
+</style>
+<script>
+    function toggleTask(taskId) {
+        fetch(/UserView/ToggleTask / ${ taskId }, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const taskElement = document.querySelector(.task - item[data - id="${taskId}"] .task - name);
+                if (data.isCompleted) {
+                    taskElement.classList.add('completed');
+                } else {
+                    taskElement.classList.remove('completed');
+                }
+            });
+    }
+
+
+    function deleteTask(taskId) {
+        if (confirm('Are you sure you want to delete this task?')) {
+            fetch(/UserView/DeleteTask / ${ taskId }, {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const taskElement = document.querySelector(.task - item[data - id="${taskId}"]);
+                        taskElement.remove();
+                    }
+                });
+        }
+    }
+
+    function addNewTaskList() {
+        const date = new Date().toISOString().split('T')[0];
+        location.href = /UserView/AddTask ? userId = @Model.Id& date=${ date };
+    }
+</script>
