@@ -57,6 +57,7 @@
                     <i class="fas fa-plus"></i> New Task List
                 </button>
 
+
                 <div class="task-lists">
                     @if (Model.TasksDayslists != null && Model.TasksDayslists.Any())
                     {
@@ -389,7 +390,7 @@
 </style>
 <script>
     function toggleTask(taskId) {
-        fetch(/UserView/ToggleTask / ${ taskId }, {
+        fetch(`/UserView/ToggleTask/${taskId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -397,7 +398,7 @@
         })
             .then(response => response.json())
             .then(data => {
-                const taskElement = document.querySelector(.task - item[data - id="${taskId}"] .task - name);
+                const taskElement = document.querySelector(`.task-item[data-id="${taskId}"] .task-name`);
                 if (data.isCompleted) {
                     taskElement.classList.add('completed');
                 } else {
@@ -406,16 +407,15 @@
             });
     }
 
-
     function deleteTask(taskId) {
         if (confirm('Are you sure you want to delete this task?')) {
-            fetch(/UserView/DeleteTask / ${ taskId }, {
+            fetch(`/UserView/DeleteTask/${taskId}`, {
                 method: 'POST'
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        const taskElement = document.querySelector(.task - item[data - id="${taskId}"]);
+                        const taskElement = document.querySelector(`.task-item[data-id="${taskId}"]`);
                         taskElement.remove();
                     }
                 });
@@ -424,6 +424,6 @@
 
     function addNewTaskList() {
         const date = new Date().toISOString().split('T')[0];
-        location.href = /UserView/AddTask ? userId = @Model.Id& date=${ date };
+        location.href = `/UserView/AddTask?userId=@Model.Id&date=${date}`;
     }
 </script>
